@@ -38,27 +38,27 @@ public class InPlayState extends GameState {
 	/**
 	 * pozycja Y odbijaka 1 gracza
 	 */
-	private int p1y;
+	static int p1y = 50;
 	/**
 	 * pozycja Y odbijaka 2 gracza
 	 */
-	private int p2y;
+	static int p2y = 50;
 	/**
 	 * pozycja X pi³eczki
 	 */
-	private double bx;
+	static double bx = 390;
 	/**
 	 * pozycja Y pi³eczki
 	 */
-	private double by;
+	static double by = 210;
 	/**
 	 * punkty 1 gracza
 	 */
-	private int points1;
+	static int points1 = 0;
 	/**
 	 * punkty 2 gracza
 	 */
-	private int points2;
+	static int points2 = 0;
 	/**
 	 * port serwera
 	 */
@@ -74,7 +74,7 @@ public class InPlayState extends GameState {
 	/**
 	 * zwyciêzca gry
 	 */
-	public static String winner;
+	public static String winner = "";
 	/**
 	 * Dane wejœciowe otrzymane z serwera
 	 */
@@ -86,8 +86,13 @@ public class InPlayState extends GameState {
 	/**
 	 * prêdkoœæ pi³eczki
 	 */
-	private double speed;
-
+	static double speed = 3.0;
+	
+	/**
+	 * Nas³uchiwanie odpowiedzi z serwera
+	 */
+	PlayListener ps;
+	
 	/**
 	 * Konstruktor ustawiaj¹cy GameStateManager, 
 	 * tworz¹cy paletki 1 i 2 gracza oraz pi³eczkê
@@ -138,6 +143,13 @@ public class InPlayState extends GameState {
 		createSocket(ip, port);
 		try {
 			out = new DataOutputStream(s.getOutputStream());
+			winner = "";
+			bx = 390;
+			by = 210;
+			speed = 3;
+			points1 = 0;
+			points2 = 0;
+			ps = new PlayListener(s);
 		} catch (Exception e) {
 			JoinState.wrong = true;
 		}
@@ -151,24 +163,9 @@ public class InPlayState extends GameState {
 	 */
 	public void update() {
 		if (s != null) {
-			try {
-				in = new DataInputStream(s.getInputStream());
-				String[] spl = in.readUTF().split(",");
-				if (spl.length == 7) {
-					p1y = Integer.parseInt(spl[0]);
-					p2y = Integer.parseInt(spl[1]);
-					bx = Double.parseDouble(spl[2]);
-					by = Double.parseDouble(spl[3]);
-					speed = Double.parseDouble(spl[4]);
-					points1 = Integer.parseInt(spl[5]);
-					points2 = Integer.parseInt(spl[6]);
-				} else if(spl.length == 1){
-					winner = spl[0];
-					gsm.setState(GameStateManager.WINSTATE);
-				}
-
-			} catch (IOException e) {
-				e.printStackTrace();
+			if(!winner.equals("")){
+				gsm.setState(GameStateManager.WINSTATE);
+				ps.running = false;
 			}
 		}
 
@@ -178,7 +175,6 @@ public class InPlayState extends GameState {
 	 * Metoda rysuj¹ca na ekran pi³eczkê, punkty, odbijaki, wartoœæ prêdkoœci
 	 */
 	public void draw(Graphics2D g) {
-
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, GamePanel.WIDTH, GamePanel.HEIGHT);
 		g.setColor(Color.WHITE);
@@ -211,6 +207,10 @@ public class InPlayState extends GameState {
 			}
 			if (k == KeyEvent.VK_ESCAPE) {
 				out.writeUTF("ESC");
+				gsm.setState(GameStateManager.MENUSTATE);
+				ps.running = false;
+				HostState.host = false;
+				s.close();
 			}
 			out.flush();
 		} catch (IOException e) {

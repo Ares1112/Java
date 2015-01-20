@@ -7,6 +7,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 import main.GamePanel;
 
@@ -15,6 +16,7 @@ import main.GamePanel;
  * @author Arkadiusz B³asiak
  *
  */
+
 public class ServerInstance implements Runnable {
 	
 	/**
@@ -45,12 +47,12 @@ public class ServerInstance implements Runnable {
 	 * Wektor wzd³ó¿ którego ma siê 
 	 * poruszaæ pi³eczka w pozycji X
 	 */
-	private int dbx = 1;
+	private double dbx = 1;
 	/**
 	 * Wektor wzd³ó¿ którego ma siê 
 	 * poruszaæ pi³eczka w pozycji Y
 	 */
-	private int dby = -1;
+	private double dby = -1;
 	/**
 	 * prêdkoœæ pi³eczki
 	 */
@@ -98,6 +100,11 @@ public class ServerInstance implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		bx = 390;
+		by = 210;
+		p1=0;
+		p2=0;
+		speed = 3;
 		Thread t = new Thread(this);
 		t.start();
 
@@ -114,6 +121,9 @@ public class ServerInstance implements Runnable {
 						+ speed + "," + p1 + "," + p2);
 				out.flush();
 			}
+		} catch (SocketException e) {
+			p1=10;
+			reset(lst1);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -135,16 +145,13 @@ public class ServerInstance implements Runnable {
 					out.writeUTF(p1 == 10 ? "p1" : "p2");
 					out.flush();
 					ss.close();
+				} catch (SocketException e) {
+					
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
-			try {
-				sv.close();
-				running = false;
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			running = false;
 		} else {
 			bx = 390;
 			by = 210;
@@ -153,6 +160,7 @@ public class ServerInstance implements Runnable {
 			send();
 			while (!lst.getSpace()) {
 				try {
+					if(sock[0] == null || sock[1] == null) break;
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -213,11 +221,15 @@ public class ServerInstance implements Runnable {
 		}
 		if (bx <= 17 + Bumper.BUMPERWIDTH && bx >= 17
 				&& by <= p1y + Bumper.BUMPERHEIGHT && by >= p1y) {
-			dbx = 1;
+			dbx = p1y/by+0.6;
+			if(dbx>1) dbx = 1;
+			else if (dbx<0.3) dbx = 0.3;
 			speed += 0.1;
 		} else if (bx <= 737 + Bumper.BUMPERWIDTH && bx >= 737
 				&& by <= p2y + Bumper.BUMPERHEIGHT && by >= p2y) {
-			dbx = -1;
+			dbx = -(p2y/by);
+			if(dbx<-1) dbx = -1;
+			else if (dbx>-0.3) dbx = -0.3;
 			speed += 0.1;
 		}
 		if (bx >= GamePanel.WIDTH + 10) {
@@ -251,7 +263,7 @@ public class ServerInstance implements Runnable {
 		long elapsed;
 		long wait;
 		running = true;
-
+		
 		lst1 = new Listener(sock[0]);
 		lst2 = new Listener(sock[1]);
 		
@@ -265,7 +277,12 @@ public class ServerInstance implements Runnable {
 
 			send();
 			process();
-
+			
+			if(sock[0] == null || sock[1] == null){
+				p1=10;
+				reset(lst1);
+			}
+			
 			elapsed = System.nanoTime() - start;
 
 			wait = targetTime - elapsed / 1000000;
@@ -279,6 +296,10 @@ public class ServerInstance implements Runnable {
 				e.printStackTrace();
 			}
 		}
-
+		try {
+			sv.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

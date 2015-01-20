@@ -19,22 +19,39 @@ import server.Listener;
 import server.ServerInstance;
 
 
-class toTestListener implements Runnable {
+class ToTestListener implements Runnable {
 	
-	toTestListener(){
+	ToTestListener(){
 		new Thread(this).start();
 	}
 	
 	@Override
 	public void run() {
 		ServerSocket sv;
+		Socket s = null;
 		try {
 			sv = new ServerSocket(12346);
-			Socket s = sv.accept();
+			s = sv.accept();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+		Listener lst = new Listener(s);
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
+		assertEquals(lst.getUp(), true);
+		assertEquals(lst.getDw(), true);
+		assertEquals(lst.getEsc(), true);
+		assertEquals(lst.getSpace(), true);
+		lst.stop();
+		try {
+			s.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		
 	}
 	
@@ -46,40 +63,24 @@ public class Testy {
 	
 	@Test
 	public void testListener() throws UnknownHostException, IOException {
-		new toTestListener();
+		new ToTestListener();
 		Socket s = new Socket("localhost",12346);
-		DataOutputStream out = new DataOutputStream(s.getOutputStream());
-		//Listener lst = new Listener(s);
+		DataOutputStream out = null;
+		out = new DataOutputStream(s.getOutputStream());
 		out.writeUTF("UP");
 		out.flush();
-		//assertEquals(lst.getUp(), true);
 		out.writeUTF("DW");
 		out.flush();
-		//assertEquals(lst.getDw(), true);
 		out.writeUTF("ESC");
 		out.flush();
-		//assertEquals(lst.getEsc(), true);
 		out.writeUTF("SPACE");
 		out.flush();
-		//assertEquals(lst.getSpace(), true);
-		//s.close();
-		//out.close();
-	}
-	
-	@Test
-	public void testServer() throws UnknownHostException, IOException {
-		ServerInstance sv = new ServerInstance(12345);
-		Socket s = null;
-		Socket ss = null;
-		try{
-			s = new Socket("localhost", 12345);
-			ss = new Socket("localhost", 12345);
-		} catch (SocketException e){
-			fail("Mniej niz 2 polaczenia");
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
-		DataInputStream in = new DataInputStream(s.getInputStream());
-		String a = in.readUTF();
-		assertEquals(a.split(",").length, 7);
+		s.close();
 	}
 	
 	@Test
@@ -101,6 +102,24 @@ public class Testy {
 		js.keyTyped('1');
 		js.keyPressed(KeyEvent.VK_ENTER);
 		assertEquals(js.wrong, true);
+	}
+	
+	@Test
+	public void testServer() throws UnknownHostException, IOException {
+		ServerInstance sv = new ServerInstance(12347);
+		Socket s = null;
+		Socket ss = null;
+		try{
+			s = new Socket("localhost", 12347);
+			ss = new Socket("localhost", 12347);
+		} catch (SocketException e){
+			fail("Mniej niz 2 polaczenia");
+		}
+		DataInputStream in = new DataInputStream(s.getInputStream());
+		String a = in.readUTF();
+		assertEquals(a.split(",").length, 7);
+		s.close();
+		ss.close();
 	}
 	
 }
