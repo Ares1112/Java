@@ -120,4 +120,11 @@ public class GameStateManager {
 		
 	}
 	
+	/**
+	 * Metoda pobieraj¹ca aktualny stan
+	 * @return Int - aktualny stan
+	 */
+	public int getState(){
+		return currentState;
+	}
 }

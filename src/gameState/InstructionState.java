@@ -59,7 +59,7 @@ public class InstructionState extends GameState {
 		g.drawString("graczy zdobêdzie 10 punktów.", 20, 230);
 		g.drawString("Sterowanie: W - góra, S - dó³", 20, 270);
 		g.setColor(new Color(255, 0, 0));
-		g.drawString("NACIŒNIJ ENTER ABY WYJŒÆ", 220, 400);
+		g.drawString("NACIŒNIJ ESC ABY WYJŒÆ", 220, 400);
 
 	}
 
@@ -68,7 +68,7 @@ public class InstructionState extends GameState {
 	 */
 	public void keyPressed(int k) {
 
-		if (k == KeyEvent.VK_ENTER) {
+		if (k == KeyEvent.VK_ESCAPE) {
 			gsm.setState(GameStateManager.MENUSTATE);
 		}
 

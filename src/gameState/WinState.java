@@ -39,7 +39,7 @@ public class WinState extends GameState{
 		g.setColor(Color.GREEN);
 		g.setFont(new Font("Times New Roman",Font.PLAIN,30));
 		g.drawString(InPlayState.winner+" wygra³!", 300, 150);
-		g.drawString("Naciœnij SPACJA aby wyjœæ", 200, 250);
+		g.drawString("Naciœnij ESC aby wyjœæ", 200, 250);
 		
 	}
 	
@@ -48,7 +48,7 @@ public class WinState extends GameState{
 	 * jeœli spacja to powraca do menu g³ownego
 	 */
 	public void keyPressed(int k) {
-		if(k == KeyEvent.VK_SPACE) {
+		if(k == KeyEvent.VK_ESCAPE) {
 			gsm.setState(GameStateManager.MENUSTATE);
 		}
 	}

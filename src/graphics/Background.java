@@ -2,6 +2,8 @@ package graphics;
 
 import java.awt.*;
 import java.awt.image.*;
+import java.io.IOException;
+
 import javax.imageio.ImageIO;
 
 /**
@@ -28,14 +30,11 @@ public class Background {
 	/**
 	 * Konstruktor - odczytuje obraz z pliku
 	 * @param s - œcie¿ka do obrazu
+	 * @throws IOException 
 	 */
-	public Background(String s) {
+	public Background(String s) throws IOException {
 
-		try {
-			image = ImageIO.read(getClass().getResourceAsStream(s));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		image = ImageIO.read(getClass().getResourceAsStream(s));
 
 	}
 	

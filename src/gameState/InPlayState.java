@@ -38,27 +38,27 @@ public class InPlayState extends GameState {
 	/**
 	 * pozycja Y odbijaka 1 gracza
 	 */
-	static int p1y = 50;
+	public static int p1y = 50;
 	/**
 	 * pozycja Y odbijaka 2 gracza
 	 */
-	static int p2y = 50;
+	public static int p2y = 50;
 	/**
 	 * pozycja X pi³eczki
 	 */
-	static double bx = 390;
+	public static double bx = 390;
 	/**
 	 * pozycja Y pi³eczki
 	 */
-	static double by = 210;
+	public static double by = 210;
 	/**
 	 * punkty 1 gracza
 	 */
-	static int points1 = 0;
+	public static int points1 = 0;
 	/**
 	 * punkty 2 gracza
 	 */
-	static int points2 = 0;
+	public static int points2 = 0;
 	/**
 	 * port serwera
 	 */
@@ -76,22 +76,18 @@ public class InPlayState extends GameState {
 	 */
 	public static String winner = "";
 	/**
-	 * Dane wejœciowe otrzymane z serwera
-	 */
-	private DataInputStream in = null;
-	/**
 	 * Dane wyjœciowe przesy³ane do serwera
 	 */
 	private DataOutputStream out = null;
 	/**
 	 * prêdkoœæ pi³eczki
 	 */
-	static double speed = 3.0;
+	public static double speed = 3.0;
 	
 	/**
 	 * Nas³uchiwanie odpowiedzi z serwera
 	 */
-	PlayListener ps;
+	private PlayListener ps;
 	
 	/**
 	 * Konstruktor ustawiaj¹cy GameStateManager, 
@@ -157,9 +153,7 @@ public class InPlayState extends GameState {
 	}
 
 	/**
-	 * Metoda aktualizuj¹ca parametry pi³eczki, 
-	 * punktów, odbijaków - pobiera dane z serwera,
-	 * jeœli otrzyma tylko jedn¹ dan¹ - jest to zwyciêzca
+	 * Metoda sprawdzaj¹ca czy partia zosta³a wygrana
 	 */
 	public void update() {
 		if (s != null) {
@@ -167,6 +161,18 @@ public class InPlayState extends GameState {
 				gsm.setState(GameStateManager.WINSTATE);
 				ps.running = false;
 			}
+			 try { 
+				 out.writeUTF("Ping"); 
+				 out.flush(); 
+			 }catch (IOException e){
+				 winner="p2";
+				 gsm.setState(GameStateManager.WINSTATE); 
+				 ps.running = false;
+				 try {
+					s.close();
+				} catch (IOException e1) {
+				}
+			 }
 		}
 
 	}

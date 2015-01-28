@@ -30,7 +30,7 @@ public class PlayListener implements Runnable {
 	 * Konstruktor - ustawia socket i startuje w¹tek
 	 * @param s - socket serwera
 	 */
-	PlayListener(Socket s) {
+	public PlayListener(Socket s) {
 		this.s = s;
 		running = true;
 		new Thread(this).start();
